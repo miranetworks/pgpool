@@ -167,8 +167,14 @@ handle_call({squery, Sql}, _From, #state{conn = Conn} = State) ->
     {reply, epgsql:squery(Conn, Sql), State};
 
 handle_call({equery, Statement, Params}, _From, #state{conn = Conn} = State) ->
-    {_, State1} = prepare_or_get_statement(Statement, State),
-    {reply, epgsql:prepared_query(Conn, Statement, Params), State1};
+    % For now we are not using prepared statements here
+    % There is an issue with the gen_sever crashing and the dict getting cleared, 
+    % but the prepared statements still exist on the PG side so we get duplicate prepared statement errors.
+
+    %{_, State1} = prepare_or_get_statement(Statement, State),
+    %{reply, epgsql:prepared_query(Conn, Statement, Params), State1};
+    
+    {reply, epgsql:equery(Conn, Statement, Params), State};
 
 handle_call({batch, StatementsWithParams}, _From, #state{
     conn = Conn
